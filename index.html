@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0c">
+  <title>STALINGRADO</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23111'/%3E%3Cpath d='M16 5l3 8h8l-6.500 5 2.500 8-7-5-7 5 2.500-8L5 13h8z' fill='%23b01a1c'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- CENÁRIO: céu e ruínas da cidade, atrás de todas as telas -->
+  <div class="cenario" aria-hidden="true">
+    <svg class="ruinas ruinas-fundo" viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+      <path d="M0 170V112l18-6 8 10 12-34 22 6V60l16-8 6 18 16 2 4 40 14 8 10-22 18 8 6-52 22-12 6 10 14-6 2 48 14 10 16-26 14 6 6-24 12 8v44l16 10 10-30 18-2 8 14 12-34 10 24 16 10 2 80z"/>
+    </svg>
+    <svg class="ruinas ruinas-frente" viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice">
+      <path fill-rule="evenodd" d="M0 170v-40l12-4 6-26 24-8 4 14 10 2 2 30 18 6 8-44 26-10 2-22 14-6 8 24 12-2 2 58 16 12 14-34 8 2 4-18 20-6 6 12 10-4v52l16 8 10-40 22-8 6 16 8-4 4 30 18 10 10-20 20 6v66zM34 118h8v10h-8zm0 18h8v10h-8zm62-34h8v10h-8zm16 0h8v10h-8zm-16 20h8v10h-8zm16 0h8v10h-8zm116 18h8v10h-8zm18 0h8v10h-8zm62-4h8v10h-8z"/>
+    </svg>
+  </div>
+  <div id="brasas" class="brasas" aria-hidden="true"></div>
+
+  <main id="app">
+
+    <!-- TELA 1: INÍCIO -->
+    <section id="tela-inicio" class="tela ativa">
+      <header class="logo">
+        <p class="logo-sobre">Jogo de cartas</p>
+        <h1>STALINGRADO</h1>
+        <div class="logo-barra"></div>
+      </header>
+
+      <fieldset class="modos">
+        <legend>Escolha o modo</legend>
+        <button type="button" class="modo selecionado" data-modo="celular" aria-pressed="true">
+          <strong>Passar o celular</strong>
+          <span>O aparelho passa de mão em mão. Sem nomes.</span>
+        </button>
+        <button type="button" class="modo" data-modo="todos" aria-pressed="false">
+          <strong>Um celular para todos</strong>
+          <span>Uma pessoa controla. O jogo cuida da ordem.</span>
+        </button>
+      </fieldset>
+
+      <button id="btn-iniciar" type="button" class="botao primario">Iniciar jogo</button>
+    </section>
+
+    <!-- TELA 2: CADASTRO DE JOGADORES (só no modo "um celular para todos") -->
+    <section id="tela-jogadores" class="tela">
+      <h2 class="titulo-tela">Jogadores</h2>
+      <p class="ajuda">Coloque na ordem em que estão sentados, em sentido horário.</p>
+
+      <form id="form-jogador" class="linha-jogador" autocomplete="off">
+        <input id="campo-nome" type="text" maxlength="16" placeholder="Nome do jogador" aria-label="Nome do jogador" enterkeyhint="done">
+        <button type="submit" class="botao adicionar">Adicionar</button>
+      </form>
+      <p id="aviso-nome" class="aviso" hidden></p>
+
+      <ol id="lista-jogadores" class="lista-jogadores"></ol>
+
+      <div class="rodape-tela">
+        <button id="btn-voltar" type="button" class="botao">Voltar</button>
+        <button id="btn-comecar" type="button" class="botao primario" disabled>Começar</button>
+      </div>
+    </section>
+
+    <!-- TELA 3: PARTIDA -->
+    <section id="tela-partida" class="tela">
+      <header class="placar">
+        <span class="placar-nome">STALINGRADO</span>
+        <span id="selo-armageddon" class="selo-armageddon" hidden>Armageddon ativo</span>
+        <span class="contador"><b id="contador">0</b> cartas restantes</span>
+      </header>
+
+      <div class="area-central">
+      <!-- Carta revelada e regra: aparece por cima da mesa -->
+      <div id="revelacao" class="revelacao" hidden>
+        <div id="palco" class="palco"></div>
+        <div id="painel" class="painel" hidden>
+          <p id="painel-carta" class="painel-carta"></p>
+          <h2 id="painel-regra" class="painel-regra"></h2>
+          <p id="painel-info" class="painel-info" hidden></p>
+          <ul id="painel-nomes" class="painel-nomes" hidden></ul>
+          <div id="painel-escolha" class="painel-escolha" hidden></div>
+          <p id="painel-dica" class="dica" hidden>Próxima pessoa: toque ou arraste a carta</p>
+          <button id="btn-proxima" type="button" class="botao primario" hidden></button>
+        </div>
+      </div>
+
+      <div id="turno" class="turno">
+        <p id="turno-rotulo" class="turno-rotulo"></p>
+        <p id="turno-nome" class="turno-nome"></p>
+        <p id="turno-lados" class="turno-lados" hidden>
+          <span id="turno-esquerda"></span>
+          <span id="turno-direita"></span>
+        </p>
+      </div>
+
+      <div class="mesa">
+        <button id="monte" type="button" class="monte" aria-label="Retirar carta">
+          <span class="camada carta-verso"></span>
+          <span class="camada carta-verso"></span>
+          <span id="topo" class="topo carta-verso"></span>
+        </button>
+        <p id="dica" class="dica">Toque ou arraste para cima</p>
+
+        <div id="esgotado" class="esgotado" hidden>
+          <h2>Baralho esgotado</h2>
+          <p>As cartas acabaram. O Armageddon ainda pode ser ativado.</p>
+          <button id="btn-nova-esgotado" type="button" class="botao">Nova partida</button>
+        </div>
+      </div>
+      </div>
+
+      <footer class="comandos">
+        <button id="btn-historico" type="button" class="botao-historico" aria-label="Abrir histórico">
+          <span class="historico-rotulo">Histórico</span>
+          <span id="tira-historico" class="tira-historico"></span>
+        </button>
+        <button id="btn-armageddon" type="button" class="botao perigo">Armageddon</button>
+      </footer>
+    </section>
+  </main>
+
+  <!-- CONFIRMAÇÃO DO ARMAGEDDON -->
+  <div id="dialogo" class="fundo-dialogo" role="dialog" aria-modal="true" aria-labelledby="dialogo-titulo" hidden>
+    <div class="dialogo">
+      <h2 id="dialogo-titulo">Ativar Armageddon?</h2>
+      <p>O baralho restante vira dois baralhos completos, com um Coringa. As cartas que já saíram não voltam.</p>
+      <p>Daí em diante as cartas não têm regra. Quem tirar o Coringa bebe a garrafa inteira.</p>
+      <p><strong>Isso não pode ser desfeito.</strong></p>
+      <div class="dialogo-botoes">
+        <button id="btn-cancelar" type="button" class="botao">Cancelar</button>
+        <button id="btn-confirmar" type="button" class="botao perigo">Ativar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO COMPLETO -->
+  <div id="historico" class="fundo-dialogo fundo-historico" role="dialog" aria-modal="true" aria-labelledby="historico-titulo" hidden>
+    <div class="folha-historico">
+      <header>
+        <h2 id="historico-titulo">Histórico</h2>
+        <button id="btn-fechar-historico" type="button" class="botao fechar">Fechar</button>
+      </header>
+      <p id="historico-vazio" class="ajuda">Nenhuma carta retirada ainda.</p>
+      <ol id="lista-historico" class="lista-historico"></ol>
+    </div>
+  </div>
+
+  <!-- CENA DE ATIVAÇÃO DO ARMAGEDDON -->
+  <div id="cena-armageddon" class="cena-armageddon" aria-live="assertive" hidden>
+    <p class="cena-armageddon-aviso">Alerta máximo</p>
+    <h2>ARMAGEDDON</h2>
+    <p class="cena-armageddon-sub">O baralho foi refeito</p>
+  </div>
+
+  <!-- CENA FINAL DO CORINGA -->
+  <div id="cena-coringa" class="cena-coringa" aria-live="assertive" hidden>
+    <div class="garrafa" aria-hidden="true">
+      <svg class="garrafa-topo" viewBox="0 0 120 300">
+        <path d="M48 8h24v62c0 20 26 28 26 58v16l-14 8-12-10-14 12-12-8-14 6-10-8v-16c0-30 26-38 26-58z"/>
+        <rect x="46" y="4" width="28" height="14" rx="3" class="garrafa-tampa"/>
+      </svg>
+      <svg class="garrafa-base" viewBox="0 0 120 300">
+        <path d="M22 152l10 8 14-6 12 8 14-12 12 10 14-8v128c0 8-6 14-14 14H36c-8 0-14-6-14-14z"/>
+        <rect x="22" y="192" width="76" height="52" class="garrafa-rotulo"/>
+      </svg>
+      <div id="estilhacos" class="estilhacos"></div>
+    </div>
+    <h2>VOCÊ MATOU<br>A GARRAFA!</h2>
+    <p id="coringa-nome" class="coringa-nome"></p>
+    <button id="btn-nova-coringa" type="button" class="botao primario">Nova partida</button>
+  </div>
+
+  <!-- A ordem importa: cada arquivo usa o que foi carregado antes dele -->
+  <script src="js/regras.js"></script>
+  <script src="js/baralho.js"></script>
+  <script src="js/partida.js"></script>
+  <script src="js/animacoes.js"></script>
+  <script src="js/interface.js"></script>
+</body>
+</html>
